@@ -10,8 +10,8 @@ source('http://bioconductor.org/biocLite.R')
 library('edgeR')
 library('xlsx')
 
-counts <- read.delim('RNA-Seq-counts.txt', header=TRUE, skip=1, row.names=1)
-annotation <- read.delim('RNA-Seq-annotation.txt', header=TRUE, skip=1, row.names=1)
+counts <- read.delim('Data/RNA-Seq-counts.txt', header=TRUE, skip=1, row.names=1)
+annotation <- read.delim('Data/RNA-Seq-annotation.txt', header=TRUE, skip=1, row.names=1)
 
 RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter, pdf_name, save_pdf, xlsx_name, data_sheet_name, kegg_sheet_name, save_sheet){
   # Create DGEList object for storing data.
