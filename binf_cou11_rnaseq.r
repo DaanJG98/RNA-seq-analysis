@@ -1,6 +1,6 @@
 # File      binf_cou11_rnaseq
-# Version   0.4
-# Date      10/05/2018
+# Version   0.5
+# Date      11/05/2018
 # Authors   Sjors Bongers, Daan Gilissen, Martijn Landman, Koen Rademaker, Ronald van den Hurk
 
 source('http://bioconductor.org/biocLite.R')
@@ -56,19 +56,20 @@ RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter,
     mc <- makeContrasts(exp.r=NC8.glc-NC8.rib, levels=design)
   }
   fit <- glmLRT(fit, contrast=mc)
-  reg_toptags <- topTags(fit, n=nrow(y))
+  res_toptags <- topTags(fit, n=nrow(y))
   
   # Combine top differentially expressed genes with annotation.
-  combined_data <- cbind(reg_toptags, annotation[rownames(reg_toptags),])
-  if(save_sheet){
-    write.xlsx(combined_data, file=xlsx_name, sheetName=data_sheet_name, col.names=TRUE, row.names=TRUE, append=TRUE, showNA=TRUE)
-  }
+  combined_data <- cbind(res_toptags, annotation[rownames(res_toptags),])
   
   # KEGG pathway analysis.
   kegg <- kegga(fit, species.KEGG='lpl')
   res_kegg <- topKEGG(kegg)
-  write.xlsx(res_kegg, file=xlsx_name, sheetName=kegg_sheet_name, col.names=TRUE, row.names=TRUE, append=TRUE, showNA=TRUE)
+  
+  # Save data to Excel file.
+  if(save_sheet){
+    write.xlsx(combined_data, file=xlsx_name, sheetName=data_sheet_name, col.names=TRUE, row.names=TRUE, append=TRUE, showNA=TRUE)
+    write.xlsx(res_kegg, file=xlsx_name, sheetName=kegg_sheet_name, col.names=TRUE, row.names=TRUE, append=TRUE, showNA=TRUE)
+  }
 }
-
 WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, 50, 'Results/WCFS1 results.pdf', TRUE, 'Results/diff expr genes AND annotation.xlsx', 'WCFS1 Top tags', 'WCFS1 Top KEGG pathways', TRUE)
 NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, 50, 'Results/NC8 results.pdf', TRUE, 'Results/diff expr genes AND annotation.xlsx', 'NC8 Top tags', 'NC8 Top KEGG pathways', TRUE)
