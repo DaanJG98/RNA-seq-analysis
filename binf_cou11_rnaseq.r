@@ -70,5 +70,5 @@ RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter,
   write.xlsx(res_kegg, file=xlsx_name, sheetName=kegg_sheet_name, col.names=TRUE, row.names=TRUE, append=TRUE, showNA=TRUE)
 }
 
-WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, 50, 'WCFS1 results.pdf', TRUE, 'diff expr genes AND annotation.xlsx', 'WCFS1 Top tags', 'WCFS1 Top KEGG pathways', TRUE)
-NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, 50, 'NC8 results.pdf', TRUE, 'diff expr genes AND annotation.xlsx', 'NC8 Top tags', 'NC8 Top KEGG pathways', TRUE)
+WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, 50, 'Results/WCFS1 results.pdf', TRUE, 'Results/diff expr genes AND annotation.xlsx', 'WCFS1 Top tags', 'WCFS1 Top KEGG pathways', TRUE)
+NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, 50, 'Results/NC8 results.pdf', TRUE, 'Results/diff expr genes AND annotation.xlsx', 'NC8 Top tags', 'NC8 Top KEGG pathways', TRUE)
