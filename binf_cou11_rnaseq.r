@@ -1,6 +1,6 @@
 # File      binf_cou11_rnaseq
-# Version   0.6
-# Date      13/05/2018
+# Version   0.7
+# Date      14/05/2018
 # Authors   Sjors Bongers, Daan Gilissen, Martijn Landman, Koen Rademaker, Ronald van den Hurk
 
 source('http://bioconductor.org/biocLite.R')
@@ -14,6 +14,7 @@ library(KEGGREST)
 
 counts <- read.delim('Data/RNA-Seq-counts.txt', header=TRUE, skip=1, row.names=1)
 annotation <- read.delim('Data/RNA-Seq-annotation.txt', header=TRUE, skip=1, row.names=1)
+cpm = 10
 
 RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter, pdf_name, save_pdf, xlsx_name, data_sheet_name, kegg_sheet_name, pathways_sheet_name, save_sheet){
   # Create DGEList object for storing data.
@@ -104,5 +105,5 @@ RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter,
   }
 }
 
-WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, 50, 'Results/WCFS1 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'WCFS1 Top D.E. genes', 'WCFS1 Top pathways', 'WCFS1 Top 10 genes pathways', TRUE)
-NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, 50, 'Results/NC8 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'NC8 Top D.E. genes', 'NC8 Top pathways', 'NC8 Top 10 genes pathways', TRUE)
+WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, cpm, 'Results/WCFS1 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'WCFS1 Top D.E. genes', 'WCFS1 Top pathways', 'WCFS1 Top 10 genes pathways', TRUE)
+NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, cpm, 'Results/NC8 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'NC8 Top D.E. genes', 'NC8 Top pathways', 'NC8 Top 10 genes pathways', TRUE)
