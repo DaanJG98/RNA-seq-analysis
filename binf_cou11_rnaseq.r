@@ -105,5 +105,5 @@ RNA_seq_analysis <- function(exp_val_1, exp_val_2, index_1, index_2, cpm_filter,
   }
 }
 
-WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, cpm, 'Results/WCFS1 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'WCFS1 Top D.E. genes', 'WCFS1 Top pathways', 'WCFS1 Top 10 genes pathways', TRUE)
-NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, cpm, 'Results/NC8 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'NC8 Top D.E. genes', 'NC8 Top pathways', 'NC8 Top 10 genes pathways', TRUE)
+WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, cpm, 'Results/WCFS1 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'WCFS1 Top D.E. genes', 'WCFS1 Top pathways', 'WCFS1 Top 10 genes pathways', FALSE)
+NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, cpm, 'Results/NC8 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'NC8 Top D.E. genes', 'NC8 Top pathways', 'NC8 Top 10 genes pathways', FALSE)
