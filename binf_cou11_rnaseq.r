@@ -128,7 +128,6 @@ DeterminePathwayOverrep <- function(fit, n_results){
 AnnotateDEGEnes <- function(genes){
   # Annotate DE genes.
   annotated_data <- cbind(genes, Annotation[rownames(genes),])
-  
   return(annotated_data)
 }
 
@@ -144,7 +143,6 @@ WCFS1_group <- CreateGroup('WCFS1.glc', 'WCFS1.rib')
 WCFS1_data <- DataProcessing(WCFS1_group, 1, 4, CPM)
 
 fit <- CreateModel('WCFS1', WCFS1_data, WCFS1_group)
-#de_genes <- DetermineDEGenes(fit, 10)
 de_genes <- DetermineDEGenes(fit, nrow(WCFS1_data))
 pathways_de_genes <- GetPathwaysForGenes(de_genes)
 overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
@@ -158,7 +156,6 @@ NC8_group <- CreateGroup('NC8.glc', 'NC8.rib')
 NC8_data <- DataProcessing(NC8_group, 5, 8, CPM)
 
 fit <- CreateModel('NC8', NC8_data, NC8_group)
-#de_genes <- DetermineDEGenes(fit, 10)
 de_genes <- DetermineDEGenes(fit, nrow(NC8_data))
 pathways_de_genes <- GetPathwaysForGenes(de_genes)
 overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
