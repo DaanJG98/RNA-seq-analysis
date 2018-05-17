@@ -162,4 +162,3 @@ overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
 annotated_results <- AnnotateDEGEnes(de_genes)
 PlotData('Results/NC8_plots.pdf', NC8_data, NC8_group)
 WriteResults('Results/RNA_Seq_analysis_results.xlsx', annotated_results, 'NC8 DE genes', overrep_pathways, 'NC8 Overrep pathways', pathways_de_genes, 'NC8 DE genes pathways')
->>>>>>> origin/improved_setup
