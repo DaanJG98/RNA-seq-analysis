@@ -9,10 +9,11 @@ source('http://bioconductor.org/biocLite.R')
 library(KEGGREST)
 
 # Create query
-gene <- 'lp_0001'
+gene <- 'lp_2698'
 query <- keggGet(c(paste('lpl:', gene, sep='')))
 
 # Get gene name
 query[[1]]$NAME
 # Get pathway(s)
 query[[1]]$PATHWAY
+
