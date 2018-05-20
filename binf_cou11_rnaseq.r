@@ -138,10 +138,7 @@ WriteResults <- function(file_name, annotated_results, sheet_name_1, or_pathways
   write.xlsx(pathways_de_genes, file=file_name, sheetName=sheet_name_3, col.names=TRUE, row.names=FALSE, append=TRUE, showNA=FALSE)
 }
 
-<<<<<<< HEAD
-WCFS1 <- RNA_seq_analysis('WCFS1.glc', 'WCFS1.rib', 1, 4, cpm, 'Results/WCFS1 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'WCFS1 Top D.E. genes', 'WCFS1 Top pathways', 'WCFS1 Top 10 genes pathways', FALSE)
-NC8 <- RNA_seq_analysis('NC8.glc', 'NC8.rib', 5, 8, cpm, 'Results/NC8 results.pdf', FALSE, 'Results/Annotated DE genes and pathways.xlsx', 'NC8 Top D.E. genes', 'NC8 Top pathways', 'NC8 Top 10 genes pathways', FALSE)
-=======
+
 # Run analysis for WCFS1.
 WCFS1_group <- CreateGroup('WCFS1.glc', 'WCFS1.rib')
 WCFS1_data <- DataProcessing(WCFS1_group, 1, 4, CPM)
@@ -166,4 +163,4 @@ overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
 annotated_results <- AnnotateDEGEnes(de_genes)
 PlotData('Results/NC8_plots.pdf', NC8_data, NC8_group)
 WriteResults('Results/RNA_Seq_analysis_results.xlsx', annotated_results, 'NC8 DE genes', overrep_pathways, 'NC8 Overrep pathways', pathways_de_genes, 'NC8 DE genes pathways')
->>>>>>> origin/master
+

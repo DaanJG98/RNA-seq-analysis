@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+```{r}
+library(edgeR)
+# Load the data file into a data frame and rename the row names of the data frame
+cnts = read.delim("D:\\Users\\MarkVerschuuren\\Blok11\\Project_BioInf\\Scripts\\RNA-Seq-counts (3).txt", skip = 1, header=TRUE, sep = "\t")
+row.names(cnts) <- cnts[,"ID"]
+
+
+```
+
+```{r}
+# The DGEList object is used to store all data. First, the gene expression of strain WCFS1 is determined.
+# The columns 2 till 5 contain the counts of WCFS1 measured for two different growth conditions.
+
+exp <- c("WCFS1.glc","WCFS1.glc","WCFS1.rib","WCFS1.rib", "NC8.glc", "NC8.glc", "NC8.rib", "NC8.rib")
+group <- factor(exp)
+y <- DGEList(counts= as.matrix(cnts[,2:9]), group=group)
+
+# Next, genes are selected from the DGEList with at least 50 counts per million (cpm) in two samples. 
+# The function cpm of the edgeR package can be used to determine the cpm values. 
+keep.genes <- rowSums(cpm(y)>20) >= 2
+y <- y[keep.genes,]
+y$samples$lib.size <- colSums(y$counts)
+
+y <- calcNormFactors(y, method="TMM" )
+#print(y$samples$norm.factors)
+```
+From this point the data is normalized.
+
+```{r}
+m <- as.matrix(y)
+lm <- log2(m+1)
+
+lm <- na.omit(lm)
+m <- na.omit(m)
+boxplot(lm)
+```
+
+```{r}
+plot(hclust(dist(t(m), method="eu")))
+```
+
+```{r}
+pr <- prcomp(m, centre=TRUE, scale.=TRUE)
+summary(pr)
+biplot(pr)
+```
+
+
+```{r}
+design <- model.matrix(~0+group, data=y$samples)
+colnames(design) <- levels(y$samples$group)
+print(design)
+#design is made for estimating the dispersion
+
+y <- estimateGLMCommonDisp(y, design)
+y <- estimateGLMTrendedDisp(y, design, method = "power")
+y <- estimateGLMTagwiseDisp(y, design)
+
+plotMDS(y)
+```
+
+
+
+```{r}
+plotBCV(y)
+```
+
+
+
+```{r}
+fit <- glmFit(y,design)
+mc_NC8 <- makeContrasts(exp.r=NC8.glc-WCFS1.glc, levels=design)
+fit_NC8 <- glmLRT(fit, contrast=mc_NC8)
+res_NC8 <- topTags(fit_NC8)
+
+print(res_NC8)
+
+# mc_NC8 <- makeContrasts(exp.r=NC8.glc-NC8.rib, levels=design)
+# fit_NC8 <- glmLRT(fit, contrast=mc_NC8)
+# mc_WCFS <- makeContrasts(exp.r=WCFS1.glc-WCFS1.rib, levels=design)
+# fit_WCFS <- glmLRT(fit, contrast=mc_WCFS)
+#  
+# res_WCFS <- topTags(fit_WCFS)
+# res_NC8 <- topTags(fit_NC8)
+# 
+# 
+# print(res_WCFS)
+# print("")
+# print("--------------------------------------------")
+# print("")
+# print(res_NC8)
+
+
+```
+
+
