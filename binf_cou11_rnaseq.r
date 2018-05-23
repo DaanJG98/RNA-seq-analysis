@@ -1,6 +1,6 @@
 # File      binf_cou11_rnaseq
-# Version   0.8
-# Date      17/05/2018
+# Version   0.9
+# Date      23/05/2018
 # Authors   Sjors Bongers, Daan Gilissen, Martijn Landman, Koen Rademaker, Ronald van den Hurk
 
 source('http://bioconductor.org/biocLite.R')
@@ -15,10 +15,12 @@ library(KEGGREST)
 Counts <- read.delim('Data/RNA-Seq-counts.txt', header=TRUE, skip=1, row.names=1)
 Annotation <- read.delim('Data/RNA-Seq-annotation.txt', header=TRUE, skip=1, row.names=1)
 CPM = 10
+PCH_1 = 21
+PCH_2 = 23
 
-CreateGroup <- function(condition_1, condition_2){
+CreateGroup <- function(conditions){
   # Store experimental conditions.
-  exp <- c(condition_1, condition_1, condition_2, condition_2)
+  exp <- rep(conditions, each=2)
   group <- factor(exp)
   
   return(group)
@@ -65,14 +67,21 @@ DataProcessing <- function(group, start, stop, cpm_filter){
   return(y)
 }
 
-PlotData <- function(file_name, data, group){
-  pdf(file_name)
-  pch <- c(15, 17, 15, 17)
-  colors <- rep(c('red', 'blue'), 2)
-  plotMDS(data, col=colors[group], pch=pch[group])
-  legend('top', legend=levels(group), pch=pch, col=colors, ncol=1)
-  plotBCV(data)
-  dev.off()
+PlotSampleDistances <- function(title, data, group){
+  # Set up colors and symbols for plot.
+  if(length(levels(group)) == 4){
+    colors <- rep(c('red', 'red', 'blue', 'blue'), 2)
+  } else if(length(levels(group)) == 2){
+    colors <- rep(c('red', 'blue'), 2)
+  }
+  par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+  pch <- rep(c(PCH_1, PCH_2), length(levels(group)))
+  pch_legend <- rep(c(16, 18), length(levels(group))/2)
+  
+  # Visualize plot.
+  plotMDS(data, bg=colors[group], cex=2, col=1, pch=pch[group], xlab='Dimension 1', ylab='Dimension 2')
+  title(title, line=0.5)
+  legend('topright', col=colors, inset=c(-0.33,0), legend=levels(group), ncol=1, pch=pch_legend, title='Samples')
 }
 
 GetPathwaysForGenes <- function(genes){
@@ -138,27 +147,29 @@ WriteResults <- function(file_name, annotated_results, sheet_name_1, or_pathways
   write.xlsx(pathways_de_genes, file=file_name, sheetName=sheet_name_3, col.names=TRUE, row.names=FALSE, append=TRUE, showNA=FALSE)
 }
 
-# Run analysis for WCFS1.
-WCFS1_group <- CreateGroup('WCFS1.glc', 'WCFS1.rib')
-WCFS1_data <- DataProcessing(WCFS1_group, 1, 4, CPM)
+# Visualize and check separation of samples on growth medium and strain.
+All_group <- CreateGroup(c('WCFS1.glc', 'WCFS1.rib', 'NC8.glc', 'NC8.rib'))
+All_data <- DataProcessing(All_group, 1, 8, CPM)
+PlotSampleDistances('Distances between RNA-Seq samples', All_data, All_group)
 
+# Run analysis for WCFS1.
+WCFS1_group <- CreateGroup(c('WCFS1.glc', 'WCFS1.rib'))
+WCFS1_data <- DataProcessing(WCFS1_group, 1, 4, CPM)
 fit <- CreateModel('WCFS1', WCFS1_data, WCFS1_group)
 de_genes <- DetermineDEGenes(fit, nrow(WCFS1_data))
 pathways_de_genes <- GetPathwaysForGenes(de_genes)
 overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
 annotated_results <- AnnotateDEGEnes(de_genes)
-PlotData('Results/WCFS1_plots.pdf', WCFS1_data, WCFS1_group)
+PlotSampleDistances('Distances between WCFS1 RNA-Seq samples', WCFS1_data, WCFS1_group)
 WriteResults('Results/RNA_Seq_analysis_results.xlsx', annotated_results, 'WCFS1 DE genes', overrep_pathways, 'WCFS1 Overrep pathways', pathways_de_genes, 'WCFS1 DE genes pathways')
 
-
 # Run analysis for NC8.
-NC8_group <- CreateGroup('NC8.glc', 'NC8.rib')
+NC8_group <- CreateGroup(c('NC8.glc', 'NC8.rib'))
 NC8_data <- DataProcessing(NC8_group, 5, 8, CPM)
-
 fit <- CreateModel('NC8', NC8_data, NC8_group)
 de_genes <- DetermineDEGenes(fit, nrow(NC8_data))
 pathways_de_genes <- GetPathwaysForGenes(de_genes)
 overrep_pathways <- DeterminePathwayOverrep(fit, Inf)
 annotated_results <- AnnotateDEGEnes(de_genes)
-PlotData('Results/NC8_plots.pdf', NC8_data, NC8_group)
+PlotSampleDistances('Distances between NC8 RNA-Seq samples', NC8_data, NC8_data)
 WriteResults('Results/RNA_Seq_analysis_results.xlsx', annotated_results, 'NC8 DE genes', overrep_pathways, 'NC8 Overrep pathways', pathways_de_genes, 'NC8 DE genes pathways')
