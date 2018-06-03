@@ -1,4 +1,4 @@
-# Version   0.12
+# Version   0.13
 # Date      03/06/2018
 
 # INSTALLATION (OPTIONAL) AND LOADING REQUIRED PACKAGES
@@ -68,14 +68,6 @@ DataProcessing <- function(group, start, stop, cpm_filter){
   y <- estimateGLMTrendedDisp(y,design, method='power')
   y <- estimateGLMTagwiseDisp(y,design)
   return(y)
-}
-
-HeatMapDataProcessing <- function(df, shared_genes){
-  # Filter relevant genes from data frame.
-  df_1 <- subset(df_1, select=c('logFC', 'FDR'))
-  df_1 <- subset(df_1, abs(logFC) >= 2 & FDR < FDR_filter)
-  df_1 <- as.data.frame(df_1[row.names(df_1) %in% shared_genes,])
-  return(df)
 }
 
 PlotSampleDistances <- function(title, data, group){
