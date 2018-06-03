@@ -1,4 +1,4 @@
-# Version   0.11
+# Version   0.12
 # Date      03/06/2018
 
 # INSTALLATION (OPTIONAL) AND LOADING REQUIRED PACKAGES
@@ -6,7 +6,7 @@ source('http://bioconductor.org/biocLite.R')
 if(is.element('biocLite', installed.packages()[,1])==FALSE){
   biocLite()
 }
-required_libraries <- c('DBI', 'edgeR', 'KEGGREST', 'KEGG.db', 'xlsx')
+required_libraries <- c('DBI', 'edgeR', 'gplots', 'KEGGREST', 'KEGG.db', 'RColorBrewer', 'xlsx')
 for(library in required_libraries){
   if(is.element(library, installed.packages()[,1])==FALSE){
     biocLite(pkgs=library)
@@ -14,8 +14,10 @@ for(library in required_libraries){
 }
 library('DBI')
 library('edgeR')
+library('gplots')
 library('KEGGREST')
 library('KEGG.db')
+library('RColorBrewer')
 library('xlsx')
 
 # LOAD DATA
@@ -68,6 +70,14 @@ DataProcessing <- function(group, start, stop, cpm_filter){
   return(y)
 }
 
+HeatMapDataProcessing <- function(df, shared_genes){
+  # Filter relevant genes from data frame.
+  df_1 <- subset(df_1, select=c('logFC', 'FDR'))
+  df_1 <- subset(df_1, abs(logFC) >= 2 & FDR < FDR_filter)
+  df_1 <- as.data.frame(df_1[row.names(df_1) %in% shared_genes,])
+  return(df)
+}
+
 PlotSampleDistances <- function(title, data, group){
   # Set up colors and symbols for plot.
   if(length(levels(group)) == 4){
@@ -82,6 +92,36 @@ PlotSampleDistances <- function(title, data, group){
   plotMDS(data, bg=colors[group], cex=2, col=1, pch=pch[group], xlab='Dimension 1', ylab='Dimension 2')
   title(title, line=0.5)
   legend('topright', col=colors, inset=c(-0.33,0), legend=levels(group), ncol=1, pch=pch_legend, title='Samples')
+}
+
+PlotHeatMap <- function(WCFS1_df, NC8_df, n_genes){
+  # Cuts data frames down to selected number of genes.
+  WCFS1_df <- WCFS1_df[1:n_genes,]
+  NC8_df <- NC8_df[1:n_genes,]
+  shared_genes <- intersect(row.names(WCFS1_df), row.names(NC8_df))
+  # Reduces data frames to only contain shared genes.
+  WCFS1_df <- as.data.frame(WCFS1_df[row.names(WCFS1_df) %in% shared_genes,])
+  NC8_df <- as.data.frame(NC8_df[row.names(NC8_df) %in% shared_genes,])
+  # Combines data frames into single data frame and provides annotation.
+  annotation_df <- as.data.frame(Annotation[row.names(Annotation) %in% shared_genes,])
+  annotation_df <- subset(annotation_df, select=c('name', 'subclass'))
+  df <- cbind(WCFS1_df['logFC'], NC8_df['logFC'], row.names=shared_genes)
+  annotation_df <- cbind(df, annotation_df[rownames(df),], row.names=shared_genes)
+  # Visualizes heat map and sets column and row names.
+  rownames(df) <- paste(annotation_df[,"name"], annotation_df[,"subclass"], sep=' - ')
+  colnames(df) <- c('WCFS1', 'NC8')
+  color_palette <- colorRampPalette(c("green","blue"))(n = 64)
+  heatmap.2(as.matrix(df),
+            adjCol=c(NA, 0.5),
+            cexCol=1.5,
+            col=color_palette,
+            Colv=F,
+            dendrogram='none',
+            density.info='none',
+            margins=c(3,22),
+            notecol='black',
+            srtCol=0,
+            trace='none')
 }
 
 GetPathwaysForGenes <- function(genes){
@@ -137,11 +177,11 @@ WriteResults <- function(file_name, annotated_results, sheet_name_1, or_pathways
   write.xlsx(pathways_de_genes, file=file_name, sheetName=sheet_name_3, col.names=TRUE, row.names=FALSE, append=TRUE, showNA=FALSE)
 }
 
+
 # VISUALIZE AND CHECK SEPARATION OF SAMPLES ON GROWTH MEDIUM AND STRAIN
 All_group <- CreateGroup(c('WCFS1.glc', 'WCFS1.rib', 'NC8.glc', 'NC8.rib'))
 All_data <- DataProcessing(All_group, 1, 8, CPM)
 PlotSampleDistances('Distances between RNA-Seq samples', All_data, All_group)
-
 
 # PROCESS DATA - WCFS1
 WCFS1_group <- CreateGroup(c('WCFS1.glc', 'WCFS1.rib'))
@@ -152,7 +192,6 @@ NC8_group <- CreateGroup(c('NC8.glc', 'NC8.rib'))
 NC8_data <- DataProcessing(NC8_group, 5, 8, CPM)
 NC8_fit <- CreateModel('NC8', NC8_data, NC8_group)
 
-
 # DETERMINE DE GENES AND PATHWAYS - WCFS1
 WCFS1_de_genes <- DetermineDEGenes(WCFS1_fit, nrow(WCFS1_data))
 WCFS1_pathways_de_genes <- GetPathwaysForGenes(WCFS1_de_genes)
@@ -160,16 +199,17 @@ WCFS1_pathways_de_genes <- GetPathwaysForGenes(WCFS1_de_genes)
 NC8_de_genes <- DetermineDEGenes(NC8_fit, nrow(NC8_data))
 NC8_pathways_de_genes <- GetPathwaysForGenes(NC8_de_genes)
 
-
 # VALIDATE RESULTS - WCFS1
 WCFS1_overrep_pathways <- DeterminePathwayOverrep(WCFS1_fit, Inf)
 WCFS1_annotated_results <- AnnotateDEGEnes(WCFS1_de_genes)
-PlotSampleDistances('Distances between WCFS1 RNA-Seq samples', WCFS1_data, WCFS1_group)
 # VALIDATE RESULTS - NC8
 NC8_overrep_pathways <- DeterminePathwayOverrep(NC8_fit, Inf)
 NC8_annotated_results <- AnnotateDEGEnes(NC8_de_genes)
-PlotSampleDistances('Distances between NC8 RNA-Seq samples', NC8_data, NC8_data)
 
+# PLOT DATA
+PlotSampleDistances('Distances between WCFS1 RNA-Seq samples', WCFS1_data, WCFS1_group)
+PlotSampleDistances('Distances between NC8 RNA-Seq samples', NC8_data, NC8_data)
+PlotHeatMap(as.data.frame(WCFS1_de_genes$table), as.data.frame(NC8_de_genes$table), 50)
 
 # EXPORT RESULTS
 WriteResults('Results/RNA_Seq_analysis_results.xlsx', WCFS1_annotated_results, 'WCFS1 DE genes', WCFS1_overrep_pathways, 'WCFS1 Overrep pathways', WCFS1_pathways_de_genes, 'WCFS1 DE genes pathways')
