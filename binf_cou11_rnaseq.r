@@ -1,5 +1,5 @@
-# Version   0.14
-# Date      04/06/2018
+# Version   0.15
+# Date      06/06/2018
 
 # INSTALLATION (OPTIONAL) AND LOADING REQUIRED PACKAGES
 source('http://bioconductor.org/biocLite.R')
@@ -147,6 +147,12 @@ DetermineDEGenes <- function(fit, n_results){
   # Determine top differentially expressed genes.
   top_DE_genes <- topTags(fit, n=n_results)
   return(top_DE_genes)
+}
+
+GetOverlappingDEGenes <- function(df_1, df_2){
+  # Get genes that overlap in two data frames.
+  overlap <- intersect(row.names(df_1), row.names(df_2))
+  return(overlap)
 }
 
 DeterminePathwayOverrep <- function(fit, n_results){
